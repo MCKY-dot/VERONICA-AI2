@@ -1,4 +1,5 @@
-
+const { cmd } = require("../command");
+const axios = require("axios");
 
 // Staff promotion command with enhanced security
 cmd({
