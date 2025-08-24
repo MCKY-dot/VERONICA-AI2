@@ -28,7 +28,7 @@ const getRandomImage = () => {
 };
 
 cmd({
-    pattern: "casey",
+    pattern: "veronica",
     desc: "menu the bot",
     category: "menu",
     react: "🐇",
