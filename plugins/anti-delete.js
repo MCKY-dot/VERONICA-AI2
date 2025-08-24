@@ -30,7 +30,7 @@ async (conn, mek, m, { from, reply, text, isCreator, sender }) => {
         
         if (!text || text.toLowerCase() === 'status') {
             return await conn.sendMessage(from, {
-                text: `🔒 *AntiDelete Status*\n\nCurrent Status: ${currentStatus ? '✅ ON' : '❌ OFF'}\n\n*Usage:*\n• .antidelete on - Enable protection\n• .antidelete off - Disable protection\n\n⚡ Powered by CASEYRHODES-TECH`,
+                text: `🔒 *AntiDelete Status*\n\nCurrent Status: ${currentStatus ? '✅ ON' : '❌ OFF'}\n\n*Usage:*\n• .antidelete on - Enable protection\n• .antidelete off - Disable protection\n\n⚡ Powered by TERRI`,
                 ...newsletterConfig
             }, { quoted: mek });
         }
