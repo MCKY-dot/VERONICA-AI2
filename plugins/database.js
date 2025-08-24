@@ -12,7 +12,7 @@ const path = require('path');
 // Helper function to send responses with newsletter info
 async function sendResponse(conn, from, replyText, quotedMsg) {
     await conn.sendMessage(from, { 
-        image: { url: `https://files.catbox.moe/y3j3kl.jpg` },  
+        image: { url: `https://files.catbox.moe/mn9fgn.jpg` },  
         caption: replyText,
         contextInfo: {
             mentionedJid: [quotedMsg.sender],
