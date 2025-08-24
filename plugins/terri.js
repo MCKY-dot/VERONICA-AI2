@@ -10,7 +10,7 @@ const quotedContact = {
   message: {
     contactMessage: {
       displayName: "𝚅𝙴𝚁𝙾𝙽𝙸𝙲𝙰 𝙰𝙸",
-      vcard: "BEGIN:VCARD\nVERSION:3.0\nFN:B.M.B ༺♡༻\nORG:𝚅𝙴𝚁𝙾𝙽𝙸𝙲𝙰 𝙰𝙸;\nTEL;type=CELL;type=VOICE;waid=254112192119:+24112192119\nEND:VCARD"
+      vcard: "BEGIN:VCARD\nVERSION:3.0\nFN:B.M.B ༺♡༻\nORG:𝚅𝙴𝚁𝙾𝙽𝙸𝙲𝙰 𝙰𝙸;\nTEL;type=CELL;type=VOICE;waid=93775551335:+256784670936\nEND:VCARD"
     }
   }
 };
