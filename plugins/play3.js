@@ -137,7 +137,7 @@ cmd({
 👤 *Author:* ${yts.author.name}
 🔗 *Link:* ${yts.url}
 
-_Downloading MP3 as document..._`;
+_Downloading MP3..._`;
         
         let contextInfo = {
             mentionedJid: [m.sender],
