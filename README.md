@@ -2,6 +2,10 @@
 
 ![VERO AI Logo](https://files.catbox.moe/skuuzk.jpg)
 
+<a href="https://github.com/Terrizev/VERONICA-AI/fork">
+  <img src="https://img.shields.io/github/forks/Terrizev/VERONICA-AI?style=for-the-badge&label=Fork%20VERO%20AI&color=success" alt="Fork VERO AI">
+</a>
+
 VERO AI is an intelligent conversational assistant designed to provide meaningful interactions through advanced natural language processing. This project implements a modern, responsive chat interface with real-time capabilities.
 
 ## 🌟 Features
