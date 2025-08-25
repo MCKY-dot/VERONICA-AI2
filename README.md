@@ -25,18 +25,7 @@ To start chatting with VERO AI, you need a session ID. Click the button below to
 Access the source code and contribute to the project:
 [GitHub Repository](https://github.com/Terrizev/VERONICA-AI.git)
 
-## 🌟 Features
 
-- 🤖 Intelligent conversation capabilities
-- 💬 Real-time messaging interface
-- 🌙 Dark/light mode toggle
-- 📱 Responsive design for all devices
-- 🔄 Session persistence
-- 🎨 Modern, clean UI
-- 🔍 Message search functionality
-- 📊 Conversation analytics
-- 🌐 Multi-language support
-- 🔒 Secure communication
 
 ## 🚀 Quick Start
 
