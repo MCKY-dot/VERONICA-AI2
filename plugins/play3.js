@@ -104,6 +104,7 @@ _Reply to this message with 1 or 2 to download._`;
 });
 
 // MP3 song download
+
 cmd({ 
     pattern: "song", 
     alias: ["ytdl3", "play"], 
@@ -136,12 +137,7 @@ cmd({
 👤 *Author:* ${yts.author.name}
 🔗 *Link:* ${yts.url}
 
-*Choose download format:*
-1. 📄 MP3 as Document
-2. 🎧 MP3 as Audio (Play)
-3. 🎙️ MP3 as Voice Note (PTT)
-
-_Reply with 1, 2 or 3 to this message to download the format you prefer._`;
+_Downloading MP3 as document..._`;
         
         let contextInfo = {
             mentionedJid: [m.sender],
@@ -154,54 +150,21 @@ _Reply with 1, 2 or 3 to this message to download the format you prefer._`;
             }
         };
         
-        // Send thumbnail with caption only
-  const songmsg = await conn.sendMessage(from, { image: { url: yts.thumbnail }, caption: ytmsg, contextInfo }, { quoted: mek });
-
-  
-     
-                     conn.ev.on("messages.upsert", async (msgUpdate) => {
+        // Send thumbnail with caption
+        await conn.sendMessage(from, { 
+            image: { url: yts.thumbnail }, 
+            caption: ytmsg, 
+            contextInfo 
+        }, { quoted: mek });
         
-
-                const mp3msg = msgUpdate.messages[0];
-                if (!mp3msg.message || !mp3msg.message.extendedTextMessage) return;
-
-                const selectedOption = mp3msg.message.extendedTextMessage.text.trim();
-
-                if (
-                    mp3msg.message.extendedTextMessage.contextInfo &&
-                    mp3msg.message.extendedTextMessage.contextInfo.stanzaId === songmsg.key.id
-                ) {
-                
-                            
-                   await conn.sendMessage(from, { react: { text: "⬇️", key: mp3msg.key } });
-
-                    switch (selectedOption) {
-case "1":   
-
-      
-      
-   await conn.sendMessage(from, { document: { url: data.result.downloadUrl }, mimetype: "audio/mpeg", fileName: `${yts.title}.mp3`, contextInfo }, { quoted: mp3msg });   
-      
-      
-break;
-case "2":   
-await conn.sendMessage(from, { audio: { url: data.result.downloadUrl }, mimetype: "audio/mpeg", contextInfo }, { quoted: mp3msg });
-break;
-case "3":   
-await conn.sendMessage(from, { audio: { url: data.result.downloadUrl }, mimetype: "audio/mpeg", ptt: true, contextInfo }, { quoted: mp3msg });
-break;
-
-
-default:
-                            await conn.sendMessage(
-                                from,
-                                {
-                                    text: "*invalid selection please select between ( 1 or 2 or 3) 🔴*",
-                                },
-                                { quoted: mp3msg }
-                            );
-             }}});
-           
+        // Send MP3 as document directly
+        await conn.sendMessage(from, { 
+            document: { url: data.result.downloadUrl }, 
+            mimetype: "audio/mpeg", 
+            fileName: `${yts.title}.mp3`, 
+            contextInfo 
+        }, { quoted: mek });
+        
     } catch (e) {
         console.log(e);
         reply("An error occurred. Please try again later.");
