@@ -1,3 +1,4 @@
+
 const { cmd } = require("../command");
 const axios = require('axios');
 const fs = require('fs');
@@ -91,7 +92,30 @@ cmd({
         fs.unlinkSync(zipPath);
         fs.rmSync(extractPath, { recursive: true, force: true });
 
-        // Final success message with image
+        // Send initial progress message
+        let progressMessage = await conn.sendMessage(from, {
+            text: "🔄 Installing updates: [▒▒▒▒▒▒▒▒] 0%",
+            ...newsletterConfig
+        }, { quoted: mek });
+
+        // Update progress in the same message
+        const progressStages = [
+            "🔄 Installing updates: [████▒▒▒▒] 40%",
+            "🔄 Installing updates: [██████▒▒] 70%",
+            "🔄 Installing updates: [████████] 100%"
+        ];
+        
+        for (const progress of progressStages) {
+            await new Promise(resolve => setTimeout(resolve, 800));
+            // Edit the message with new progress
+            await conn.sendMessage(from, {
+                text: progress,
+                edit: progressMessage.key,
+                ...newsletterConfig
+            }, { quoted: mek });
+        }
+
+        // Final success message with image (this will be a new message)
         await conn.sendMessage(from, {
             image: { 
                 url: "https://files.catbox.moe/ue0vkz.jpg",
@@ -100,22 +124,6 @@ cmd({
             caption: "✅ *Update complete!*\n\n_Restarting the bot to apply changes..._\n\n⚡ Powered by Terri",
             ...newsletterConfig
         }, { quoted: mek });
-
-        // Show installation progress bars
-        const progressBars = [
-            "🔄 Installing updates: [▒▒▒▒▒▒▒▒] 0%",
-            "🔄 Installing updates: [████▒▒▒▒] 40%",
-            "🔄 Installing updates: [██████▒▒] 70%",
-            "🔄 Installing updates: [████████] 100%"
-        ];
-        
-        for (const progress of progressBars) {
-            await new Promise(resolve => setTimeout(resolve, 800));
-            await conn.sendMessage(from, {
-                text: progress,
-                ...newsletterConfig
-            }, { quoted: mek });
-        }
 
         // Restart the bot
         process.exit(0);
@@ -158,7 +166,6 @@ function copyFolderSync(source, target) {
         }
     }
 }
-
 
 cmd({
     pattern: "checkupdate",
