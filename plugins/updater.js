@@ -101,6 +101,22 @@ cmd({
             ...newsletterConfig
         }, { quoted: mek });
 
+        // Show installation progress bars
+        const progressBars = [
+            "🔄 Installing updates: [▒▒▒▒▒▒▒▒] 0%",
+            "🔄 Installing updates: [████▒▒▒▒] 40%",
+            "🔄 Installing updates: [██████▒▒] 70%",
+            "🔄 Installing updates: [████████] 100%"
+        ];
+        
+        for (const progress of progressBars) {
+            await new Promise(resolve => setTimeout(resolve, 800));
+            await conn.sendMessage(from, {
+                text: progress,
+                ...newsletterConfig
+            }, { quoted: mek });
+        }
+
         // Restart the bot
         process.exit(0);
     } catch (error) {
