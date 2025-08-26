@@ -1,5 +1,4 @@
 
-
 const {
   sleep
 } = require("../lib/functions");
@@ -21,7 +20,7 @@ cmd({
     const _0xb13dc7 = ["Red", 'Green', "Blue", "Yellow", 'Orange', 'Purple', 'Pink', 'Brown', 'Black', "White", "Gray", "Cyan", "Magenta", 'Violet', "Indigo", "Teal", 'Lavender', "Turquoise"];
     const _0x256030 = '#' + Math.floor(Math.random() * 0xffffff).toString(0x10);
     const _0x5d0cef = _0xb13dc7[Math.floor(Math.random() * _0xb13dc7.length)];
-    _0x82e9b2("🎨 *\`ALI MD RANDOM COLOUR:\`* \n\nColour Name: " + _0x5d0cef + "\nCode: " + _0x256030);
+    _0x82e9b2("🎨 *\`VERONICA AI RANDOM COLOUR:\`* \n\nColour Name: " + _0x5d0cef + "\nCode: " + _0x256030);
   } catch (_0x563257) {
     console.error("Error in .randomcolor command:", _0x563257);
     _0x82e9b2("❌ An error occurred while generating the random color.");
@@ -45,7 +44,7 @@ cmd({
     const _0x63c851 = _0x12ab54.split('').map(_0x41ab34 => {
       return ("00000000" + _0x41ab34.charCodeAt(0x0).toString(0x2)).slice(-0x8);
     }).join(" ");
-    _0x20adfd(" *\`Ali Binary Representation:\`* \n\n" + _0x63c851);
+    _0x20adfd(" *\`Veronica Binary Representation:\`* \n\n" + _0x63c851);
   } catch (_0x307dbc) {
     console.error("Error in .binary command:", _0x307dbc);
     _0x20adfd("❌ An error occurred while converting to binary.");
