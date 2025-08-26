@@ -135,7 +135,7 @@ cmd({
 
         let ytmsg = `🎵 *Song Details*
 🎶 *Title:* ${data.result.title || yts.title}
-👤 *Creator:*Terrizev*
+👤 *Creator:* TERRIZEV
 
 _Downloading MP3..._`;
 
