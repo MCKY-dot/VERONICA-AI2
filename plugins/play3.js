@@ -121,7 +121,7 @@ cmd({
         if (!yt?.results?.length) return reply("No results found!");
 
         let yts = yt.results[0];
-        let apiUrl = `https://api.rijalganzz.my.id/download/ytmp3?url=${encodeURIComponent(yts.url)}`;
+        let apiUrl = `https://apis.davidcyriltech.my.id/youtube/mp3?url=${encodeURIComponent(yts.url)}`;
 
         let response = await fetch(apiUrl);
         let data = await response.json();
@@ -129,33 +129,13 @@ cmd({
         // Debugging: log the API response for troubleshooting
         console.log("API response:", data);
 
-        if (!data.status || !data.link) {
+        if (!data.success || !data.result?.downloadUrl) {
             return reply("Failed to fetch the audio. Please try again later.");
         }
 
-        // Sanitize duration (handle comma, string, or number)
-        let durationSec = data.duration;
-        if (typeof durationSec === "string") durationSec = parseInt(durationSec.replace(/,/g, ""));
-        if (typeof durationSec !== "number" || isNaN(durationSec)) durationSec = null;
-        const duration = durationSec
-            ? `${Math.floor(durationSec / 60)}:${Math.floor(durationSec % 60).toString().padStart(2, '0')}`
-            : 'Unknown';
-
-        // Sanitize filesize
-        let filesizeNum = data.filesize;
-        if (typeof filesizeNum === "string") filesizeNum = parseInt(filesizeNum.replace(/,/g, ""));
-        if (typeof filesizeNum !== "number" || isNaN(filesizeNum)) filesizeNum = null;
-        const fileSize = filesizeNum
-            ? `${(filesizeNum / (1024 * 1024)).toFixed(2)} MB`
-            : 'Unknown';
-
         let ytmsg = `🎵 *Song Details*
-🎶 *Title:* ${data.title || yts.title}
-⏳ *Duration:* ${duration}
-💾 *Size:* ${fileSize}
-👀 *Views:* ${yts.views}
-👤 *Author:* ${yts.author.name}
-🔗 *Link:* ${yts.url}
+🎶 *Title:* ${data.result.title || yts.title}
+👤 *Creator:* ${data.creator || "Unknown"}
 
 _Downloading MP3..._`;
 
@@ -171,16 +151,16 @@ _Downloading MP3..._`;
         };
 
         await conn.sendMessage(from, {
-            image: { url: data.thumbnail || yts.thumbnail },
+            image: { url: data.result.image || yts.thumbnail },
             caption: ytmsg,
             contextInfo
         }, { quoted: mek });
 
         // Send MP3 as document directly
         await conn.sendMessage(from, {
-            document: { url: data.link },
+            document: { url: data.result.downloadUrl },
             mimetype: "audio/mpeg",
-            fileName: `${(data.title || yts.title).replace(/[^\w\s]/gi, '')}.mp3`,
+            fileName: `${(data.result.title || yts.title).replace(/[^\w\s]/gi, '')}.mp3`,
             contextInfo
         }, { quoted: mek });
 
