@@ -121,18 +121,29 @@ cmd({
         if (yt.results.length < 1) return reply("No results found!");
         
         let yts = yt.results[0];  
-        let apiUrl = `https://apis.davidcyriltech.my.id/youtube/mp3?url=${encodeURIComponent(yts.url)}`;
+        let apiUrl = `https://api.rijalganzz.my.id/download/ytmp3?url=${encodeURIComponent(yts.url)}`;
         
         let response = await fetch(apiUrl);
         let data = await response.json();
         
-        if (data.status !== 200 || !data.success || !data.result.downloadUrl) {
+        if (!data.status || !data.link) {
             return reply("Failed to fetch the audio. Please try again later.");
         }
         
+        // Format duration from seconds to MM:SS
+        const duration = data.duration ? 
+            `${Math.floor(data.duration / 60)}:${Math.floor(data.duration % 60).toString().padStart(2, '0')}` : 
+            'Unknown';
+        
+        // Format file size
+        const fileSize = data.filesize ? 
+            `${(data.filesize / (1024 * 1024)).toFixed(2)} MB` : 
+            'Unknown';
+        
         let ytmsg = `🎵 *Song Details*
-🎶 *Title:* ${yts.title}
-⏳ *Duration:* ${yts.timestamp}
+🎶 *Title:* ${data.title || yts.title}
+⏳ *Duration:* ${duration}
+💾 *Size:* ${fileSize}
 👀 *Views:* ${yts.views}
 👤 *Author:* ${yts.author.name}
 🔗 *Link:* ${yts.url}
@@ -150,18 +161,17 @@ _Downloading MP3..._`;
             }
         };
         
-        // Send thumbnail with caption
         await conn.sendMessage(from, { 
-            image: { url: yts.thumbnail }, 
+            image: { url: data.thumbnail || yts.thumbnail }, 
             caption: ytmsg, 
             contextInfo 
         }, { quoted: mek });
         
         // Send MP3 as document directly
         await conn.sendMessage(from, { 
-            document: { url: data.result.downloadUrl }, 
+            document: { url: data.link }, 
             mimetype: "audio/mpeg", 
-            fileName: `${yts.title}.mp3`, 
+            fileName: `${(data.title || yts.title).replace(/[^\w\s]/gi, '')}.mp3`, 
             contextInfo 
         }, { quoted: mek });
         
