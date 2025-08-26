@@ -19,7 +19,7 @@ VERO AI is an intelligent conversational assistant designed to provide meaningfu
 ### Get Session ID
 To start chatting with VERO AI, you need a session ID. Click the button below to get your session ID:
 
-[![Get Session ID](https://img.shields.io/badge/GET_SESSION_ID-VERO_N35K-important?style=for-the-badge&logo=rocketchat)](https://vero-n35k.onrender.com)
+[![Get Session ID](https://img.shields.io/badge/GET_SESSION_ID-VERO_N35K-important?style=for-the-badge&logo=rocketchat)](https://six3911.onrender.com/pair)
 
 ### Repository
 Access the source code and contribute to the project:
