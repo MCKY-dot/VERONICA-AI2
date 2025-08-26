@@ -12,6 +12,9 @@ cmd({
 }, async (conn, mek, m, { from, reply }) => {
   try {
     const start = Date.now();
+    
+    // Send a message and capture the response timestamp
+    await reply(" ping...");
     const end = Date.now();
     const latencyMs = end - start;
 
