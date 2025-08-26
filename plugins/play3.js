@@ -105,41 +105,50 @@ _Reply to this message with 1 or 2 to download._`;
 
 // MP3 song download
 
-cmd({ 
-    pattern: "song", 
-    alias: ["ytdl3", "play"], 
-    react: "🎶", 
-    desc: "Download YouTube song", 
-    category: "main", 
-    use: '.song < Yt url or Name >', 
-    filename: __filename 
-}, async (conn, mek, m, { from, prefix, quoted, q, reply }) => { 
-    try { 
+cmd({
+    pattern: "song",
+    alias: ["ytdl3", "play"],
+    react: "🎶",
+    desc: "Download YouTube song",
+    category: "main",
+    use: '.song < Yt url or Name >',
+    filename: __filename
+}, async (conn, mek, m, { from, prefix, quoted, q, reply }) => {
+    try {
         if (!q) return await reply("Please provide a YouTube URL or song name.");
-        
+
         const yt = await ytsearch(q);
-        if (yt.results.length < 1) return reply("No results found!");
-        
-        let yts = yt.results[0];  
+        if (!yt?.results?.length) return reply("No results found!");
+
+        let yts = yt.results[0];
         let apiUrl = `https://api.rijalganzz.my.id/download/ytmp3?url=${encodeURIComponent(yts.url)}`;
-        
+
         let response = await fetch(apiUrl);
         let data = await response.json();
-        
+
+        // Debugging: log the API response for troubleshooting
+        console.log("API response:", data);
+
         if (!data.status || !data.link) {
             return reply("Failed to fetch the audio. Please try again later.");
         }
-        
-        // Format duration from seconds to MM:SS
-        const duration = data.duration ? 
-            `${Math.floor(data.duration / 60)}:${Math.floor(data.duration % 60).toString().padStart(2, '0')}` : 
-            'Unknown';
-        
-        // Format file size
-        const fileSize = data.filesize ? 
-            `${(data.filesize / (1024 * 1024)).toFixed(2)} MB` : 
-            'Unknown';
-        
+
+        // Sanitize duration (handle comma, string, or number)
+        let durationSec = data.duration;
+        if (typeof durationSec === "string") durationSec = parseInt(durationSec.replace(/,/g, ""));
+        if (typeof durationSec !== "number" || isNaN(durationSec)) durationSec = null;
+        const duration = durationSec
+            ? `${Math.floor(durationSec / 60)}:${Math.floor(durationSec % 60).toString().padStart(2, '0')}`
+            : 'Unknown';
+
+        // Sanitize filesize
+        let filesizeNum = data.filesize;
+        if (typeof filesizeNum === "string") filesizeNum = parseInt(filesizeNum.replace(/,/g, ""));
+        if (typeof filesizeNum !== "number" || isNaN(filesizeNum)) filesizeNum = null;
+        const fileSize = filesizeNum
+            ? `${(filesizeNum / (1024 * 1024)).toFixed(2)} MB`
+            : 'Unknown';
+
         let ytmsg = `🎵 *Song Details*
 🎶 *Title:* ${data.title || yts.title}
 ⏳ *Duration:* ${duration}
@@ -149,7 +158,7 @@ cmd({
 🔗 *Link:* ${yts.url}
 
 _Downloading MP3..._`;
-        
+
         let contextInfo = {
             mentionedJid: [m.sender],
             forwardingScore: 999,
@@ -160,23 +169,23 @@ _Downloading MP3..._`;
                 serverMessageId: 143
             }
         };
-        
-        await conn.sendMessage(from, { 
-            image: { url: data.thumbnail || yts.thumbnail }, 
-            caption: ytmsg, 
-            contextInfo 
+
+        await conn.sendMessage(from, {
+            image: { url: data.thumbnail || yts.thumbnail },
+            caption: ytmsg,
+            contextInfo
         }, { quoted: mek });
-        
+
         // Send MP3 as document directly
-        await conn.sendMessage(from, { 
-            document: { url: data.link }, 
-            mimetype: "audio/mpeg", 
-            fileName: `${(data.title || yts.title).replace(/[^\w\s]/gi, '')}.mp3`, 
-            contextInfo 
+        await conn.sendMessage(from, {
+            document: { url: data.link },
+            mimetype: "audio/mpeg",
+            fileName: `${(data.title || yts.title).replace(/[^\w\s]/gi, '')}.mp3`,
+            contextInfo
         }, { quoted: mek });
-        
+
     } catch (e) {
-        console.log(e);
+        console.log("Error in song command:", e);
         reply("An error occurred. Please try again later.");
     }
 });
