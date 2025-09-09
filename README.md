@@ -4,7 +4,7 @@
 
 <div align="center">
 
-[![Get Session ID](https://img.shields.io/badge/GET-SESSION_ID-ff69b4?style=for-the-badge&logo=telegram&logoColor=white)](https://vero-n35k.onrender.com)
+[![Get Session ID](https://img.shields.io/badge/GET-SESSION_ID-ff69b4?style=for-the-badge&logo=telegram&logoColor=white)](https://vero-1.onrender.com/)
 [![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-black?style=for-the-badge&logo=github)](https://github.com/Terrizev/VERONICA-AI.git)
 <a href="https://github.com/Terrizev/VERONICA-AI/fork">
   <img src="https://img.shields.io/badge/FORK-This_Repository-success?style=for-the-badge" alt="Fork VERO AI">
