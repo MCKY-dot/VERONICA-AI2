@@ -9,11 +9,11 @@ module.exports = {
 
 
  // ===== BOT CORE SETTINGS =====
-SESSION_ID: process.env.SESSION_ID || "",
+SESSION_ID: process.env.SESSION_ID || "Veronica~jJMkhb7a#fiLTktaG2LmuhBbz0b2ku-fYLaCF2TGKp323KNke63E",
     
 PREFIX: getConfig("PREFIX") || ".",
 
-CHATBOT: getConfig("CHATBOT") || "on",
+CHATBOT: getConfig("CHATBOT") || "off",
 
 BOT_NAME: process.env.BOT_NAME || getConfig("BOT_NAME") || "VERONICA AI",
 
@@ -38,13 +38,13 @@ DEVELOPER_NUMBER: '256754550399@s.whatsapp.net',
 
 AUTO_REPLY: process.env.AUTO_REPLY || "false",
 
-AUTO_STATUS_REPLY: process.env.AUTO_STATUS_REPLY || "false",
+AUTO_STATUS_REPLY: process.env.AUTO_STATUS_REPLY || "true",
 
 AUTO_STATUS_MSG: process.env.AUTO_STATUS_MSG || "*VERONICA AI VIEWED YOUR STATUS 🧚‍♀️*",
 
 READ_MESSAGE: process.env.READ_MESSAGE || "false",
 
-REJECT_MSG: process.env.REJECT_MSG || "*📞 ᴄαℓℓ ɴσт αℓℓσωє∂ ιɴ тнιѕ ɴᴜмвєʀ уσυ ∂σɴт нανє ᴘєʀмιѕѕισɴ 📵*",
+REJECT_MSG: process.env.REJECT_MSG || "> *Hello am Veronica Assistant📞 🙃Your call could not be completed as you lack the necessary authorization to contact this number.📵*",
 
 
 // = REACTION & STICKER SETTINGS =
@@ -52,9 +52,9 @@ REJECT_MSG: process.env.REJECT_MSG || "*📞 ᴄαℓℓ ɴσт αℓℓσωє�
 
 AUTO_REACT: process.env.AUTO_REACT || "false",
 
-OWNER_REACT: process.env.OWNER_REACT || "true",
+OWNER_REACT: process.env.OWNER_REACT || "false",
               
-CUSTOM_REACT: process.env.CUSTOM_REACT || "true",
+CUSTOM_REACT: process.env.CUSTOM_REACT || "false",
 
 CUSTOM_REACT_EMOJIS: getConfig("CUSTOM_REACT_EMOJIS") || process.env.CUSTOM_REACT_EMOJIS || "💝,💖,💗,❤️‍🩹,❤️,🧡,💛,💚,💙,💜,🤎,🖤,🤍",
 
@@ -66,13 +66,13 @@ AUTO_STICKER: process.env.AUTO_STICKER || "false",
 // ===== MEDIA & AUTOMATION =====
 
 
-AUTO_RECORDING: process.env.AUTO_RECORDING || "true",
+AUTO_RECORDING: process.env.AUTO_RECORDING || "false",
 
-AUTO_TYPING: process.env.AUTO_TYPING || "true",
+AUTO_TYPING: process.env.AUTO_TYPING || "false",
 
 MENTION_REPLY: process.env.MENTION_REPLY || "false",
 
-MENU_IMAGE_URL: getConfig("MENU_IMAGE_URL") || "https://files.catbox.moe/7zfdcq.jpg",
+MENU_IMAGE_URL: getConfig("MENU_IMAGE_URL") || "https://files.catbox.moe/mn9fgn.jpg",
 
 
 // == SECURITY & ANTI-FEATURES ==
@@ -112,7 +112,7 @@ AUTO_STATUS_SEEN: process.env.AUTO_STATUS_SEEN || "true",
 
 AUTO_BIO: process.env.AUTO_BIO || "true",
 
-WELCOME: process.env.WELCOME || "false",
+WELCOME: process.env.WELCOME || "true",
 
 GOODBYE: process.env.GOODBYE || "true",
 
