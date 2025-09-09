@@ -9,7 +9,7 @@ module.exports = {
 
 
  // ===== BOT CORE SETTINGS =====
-SESSION_ID: process.env.SESSION_ID || "Veronica~jJMkhb7a#fiLTktaG2LmuhBbz0b2ku-fYLaCF2TGKp323KNke63E",
+SESSION_ID: process.env.SESSION_ID || "",
     
 PREFIX: getConfig("PREFIX") || ".",
 
