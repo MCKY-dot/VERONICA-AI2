@@ -2,10 +2,8 @@ const config = require('../config');
 const { cmd } = require('../command');
 const { ytsearch, ytmp3, ytmp4 } = require('@dark-yasiya/yt-dl.js');
 const { anony } = require('../lib/terri');
- 
 
 // video
-
 cmd({
     pattern: "song",
     alias: ["audio", "yta"],
@@ -30,12 +28,12 @@ cmd({
         
         const vid = yt.results[0];
         
-        // 3. Fetch audio using the provided API
-        const api = `https://api.zenzxz.my.id/downloader/ytmp3?url=${encodeURIComponent(vid.url)}`;
+        // 3. Fetch audio using the new API
+        const api = `https://api.nexoracle.com/downloader/yt-audio2?apikey=MatrixZatKing&url=${encodeURIComponent(vid.url)}`;
         const res = await fetch(api);
         const json = await res.json();
         
-        if (!json?.download_url) {
+        if (!json?.result?.audio) {
             await conn.sendMessage(from, { react: { text: '❌', key: m.key } });
             return reply("Audio download failed");
         }
@@ -43,17 +41,17 @@ cmd({
         // 4. Create stylish caption
         const caption = `
 ╭─〔 *🎵 VERONICA AUDIO DOWNLOADER* 〕
-├─▸ *📌 Title:* ${json.title || vid.title}
-├─▸ *⏳ Duration:* ${json.duration || vid.timestamp} seconds
-├─▸ *📊 Quality:* ${json.format || 'MP3'}
-├─▸ *👤 Author:* ${vid.author.name}
+├─▸ *📌 Title:* ${json.result.title || vid.title}
+├─▸ *⏳ Duration:* ${vid.timestamp || "N/A"}
+├─▸ *📊 Quality:* ${json.result.quality || 'MP3'}
+├─▸ *👤 Author:* ${vid.author?.name || "Unknown"}
 ╰─➤ *Powered by terri*`;
         
         // 5. Send audio as document with formatted caption
         await conn.sendMessage(from, {
-            document: { url: json.download_url },
+            document: { url: json.result.audio },
             mimetype: 'audio/mpeg',
-            fileName: `${(json.title || vid.title).replace(/[^a-zA-Z0-9]/g, '_')}.mp3`,
+            fileName: `${(json.result.title || vid.title).replace(/[^a-zA-Z0-9]/g, '_')}.mp3`,
             caption: caption
         }, { quoted: anony });
         

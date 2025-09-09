@@ -53,6 +53,7 @@ cmd({
   }
 });
 
+
 cmd({
   pattern: "play4",
   alias: ["ytmp3"],
@@ -78,22 +79,23 @@ cmd({
     const video = searchResults.videos[0];
     const videoUrl = video.url;
 
-    const apiUrl = `https://api.zenzxz.my.id/downloader/ytmp3?url=${encodeURIComponent(videoUrl)}`;
+    // Using the new API endpoint
+    const apiUrl = `https://api.nexoracle.com/downloader/yt-audio2?apikey=MatrixZatKing&url=${encodeURIComponent(videoUrl)}`;
     const res = await fetch(apiUrl);
     const data = await res.json();
 
-    if (!data.status || !data.download_url) {
+    if (!data.status || !data.result?.audio) {
       await conn.sendMessage(from, { react: { text: '❌', key: m.key } });
       return reply("❌ Failed to download audio. API error.");
     }
 
     await conn.sendMessage(from, {
-      audio: { url: data.download_url },
+      audio: { url: data.result.audio },
       mimetype: "audio/mpeg",
-      fileName: `${data.title}.mp3`
+      fileName: `${data.result.title || video.title}.mp3`
     }, { quoted: anony });
 
-    await reply(`🎵 *${data.title}*\n⏳ ${data.duration} seconds\n📊 Quality: ${data.format}\nDownloaded Successfully ✅`);
+    await reply(`🎵 *${data.result.title || video.title}*\n⏳ ${video.timestamp || "N/A"}\n📊 Quality: ${data.result.quality || 'MP3'}\nDownloaded Successfully ✅`);
 
     // ✅ Success reaction
     await conn.sendMessage(from, { react: { text: '✅', key: m.key } });
