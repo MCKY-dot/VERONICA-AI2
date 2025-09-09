@@ -1,6 +1,6 @@
 # VERO AI Chatbot
 
-![VERO AI Logo](https://files.catbox.moe/skuuzk.jpg)
+![VERO AI Logo](https://files.catbox.moe/6h4wz9.jpg)
 
 <div align="center">
 
