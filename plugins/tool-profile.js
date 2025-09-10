@@ -1,3 +1,4 @@
+
 const { cmd } = require('../command');
 const { getBuffer, fetchJson } = require('../lib/functions');
 const { anony } = require('../lib/terri');
@@ -119,5 +120,62 @@ ${isGroup ? `👥 *Group Role:* ${groupRole}` : ''}
     } catch (e) {
         console.error("Person command error:", e);
         reply(`❌ Error: ${e.message || "Failed to fetch profile"}`);
+    }
+});
+
+cmd({
+    pattern: "getpp",
+    react: "🖼️",
+    alias: ["profilepic", "getpic"],
+    desc: "Get user's profile picture",
+    category: "utility",
+    use: '.getpp [@tag or reply]',
+    filename: __filename
+},
+async (conn, mek, m, { from, sender, isGroup, reply, quoted, participants }) => {
+    try {
+        // 1. DETERMINE TARGET USER
+        let userJid = quoted?.sender || 
+                     mek.message?.extendedTextMessage?.contextInfo?.mentionedJid?.[0] || 
+                     sender;
+
+        // 2. VERIFY USER EXISTS
+        const [user] = await conn.onWhatsApp(userJid).catch(() => []);
+        if (!user?.exists) return reply("❌ User not found on WhatsApp");
+
+        // 3. GET PROFILE PICTURE
+        let ppUrl;
+        try {
+            ppUrl = await conn.profilePictureUrl(userJid, 'image');
+        } catch {
+            return reply("❌ This user doesn't have a profile picture or it's hidden");
+        }
+
+        // 4. GET USER NAME
+        let userName = userJid.split('@')[0];
+        try {
+            if (isGroup) {
+                const member = participants.find(p => p.id === userJid);
+                if (member?.notify) userName = member.notify;
+            }
+            
+            if (userName === userJid.split('@')[0] && conn.contactDB) {
+                const contact = await conn.contactDB.get(userJid).catch(() => null);
+                if (contact?.name) userName = contact.name;
+            }
+        } catch (e) {
+            console.log("Name fetch error:", e);
+        }
+
+        // 5. SEND PROFILE PICTURE
+        await conn.sendMessage(from, {
+            image: { url: ppUrl },
+            caption: `🖼️ *Profile Picture of ${userName}*\n🔢 *Number:* ${userJid.replace(/@.+/, '')}`,
+            mentions: [userJid]
+        }, { quoted: anony });
+
+    } catch (e) {
+        console.error("Getpp command error:", e);
+        reply(`❌ Error: ${e.message || "Failed to fetch profile picture"}`);
     }
 });
