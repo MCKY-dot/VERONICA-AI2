@@ -111,7 +111,7 @@ fσr mσrє ínfσ tчpє *.ownєr*
         };
         
         const audioUrls = [
-            'https://files.catbox.moe/0yaito.mp3'
+            'https://files.catbox.moe/rf14qq.mp3'
         ];
 
         const randomAudioUrl = audioUrls[Math.floor(Math.random() * audioUrls.length)];
