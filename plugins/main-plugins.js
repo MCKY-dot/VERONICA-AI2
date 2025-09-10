@@ -67,7 +67,7 @@ cmd({
     
     if (!files.length) return reply('No plugins installed');
     
-    let msg = '📋 *KHAN-MD Installed Plugins*:\n\n';
+    let msg = '📋 *VERONICA AI Installed Plugins*:\n\n';
     files.forEach((file, i) => {
       msg += `${i+1}. ${file}\n`;
     });
