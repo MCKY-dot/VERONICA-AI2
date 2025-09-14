@@ -1,11 +1,10 @@
-
 <p align="center">
   <img src="https://files.catbox.moe/6h4wz9.jpg" alt="VERO AI Logo" width="300"/>
 </p>
 
 <div align="center">
 
-  <a href="https://t.me/your-bot-link">
+  <a href="https://vero-1.onrender.com/">
     <img src="https://img.shields.io/badge/GET-SESSION_ID-ff69b4?style=for-the-badge&logo=telegram&logoColor=white" alt="Get Session ID"/>
   </a>
   <a href="https://github.com/Terrizev/VERONICA-AI">
@@ -35,7 +34,7 @@ VERO AI is an intelligent conversational assistant designed to provide meaningfu
 
 To start chatting with VERO AI, you need a session ID. Click the button below to get your session ID:
 
-<a href="https://t.me/your-bot-link">
+<a href="https://vero-1.onrender.com/">
   <img src="https://img.shields.io/badge/GET_SESSION_ID-VERO_N35K-important?style=for-the-badge&logo=rocketchat" alt="Get Session ID"/>
 </a>
 
@@ -111,3 +110,5 @@ Contributions are welcome! Please read the [contribution guidelines](CONTRIBUTIN
 ## 📄 License
 
 This project is licensed under the MIT License.
+
+```
