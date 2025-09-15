@@ -19,23 +19,31 @@ cmd({
 
     await conn.sendMessage(from, { react: { text: '⏳', key: m.key } });
 
-    const apiUrl = `https://apis.davidcyriltech.my.id/mediafire?url=${encodeURIComponent(url)}`;
+    const apiUrl = `https://api.nekolabs.my.id/downloader/mediafire?url=${encodeURIComponent(url)}`;
     const { data } = await axios.get(apiUrl);
 
-    if (!data || !data.downloadLink) {
+    if (!data || !data.status || !data.result || !data.result.download_url) {
       return reply("❌ Failed to fetch file info. Invalid URL or API error.");
     }
 
-    await reply(`📥 Downloading File (${data.size})...`);
+    const fileInfo = data.result;
+    
+    await reply(`📥 Downloading File (${fileInfo.filesize})...`);
 
-    const fileResponse = await axios.get(data.downloadLink, { responseType: 'arraybuffer' });
+    const fileResponse = await axios.get(fileInfo.download_url, { 
+      responseType: 'arraybuffer',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
+    });
+    
     const fileBuffer = Buffer.from(fileResponse.data);
 
     const messageOptions = {
       document: fileBuffer,
-      fileName: data.fileName,
-      mimetype: data.mimeType,
-      caption: `*MediaFire Download*\n\n📄 *Size:* ${data.size}\n\nPowered by VERONICA-AI`
+      fileName: fileInfo.filename,
+      mimetype: fileInfo.mimetype,
+      caption: `*MediaFire Download*\n\n📄 *Filename:* ${fileInfo.filename}\n📦 *Size:* ${fileInfo.filesize}\n📅 *Uploaded:* ${fileInfo.uploaded}\n\nPowered by VERONICA-AI`
     };
 
     await conn.sendMessage(from, messageOptions, { quoted: anony });
