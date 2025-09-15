@@ -1,4 +1,3 @@
-
 const axios = require('axios');
 const { anony } = require('../lib/terri');
 const config = require('../config')
@@ -41,13 +40,13 @@ try{
     
     // If no type specified, show available types
     if (!q) {
-        const message = `*💳 AVAILABLE CARD TYPES*\\n\\n` +
-                       `${validTypes.map(type => `• ${type}`).join('\\n')}\\n\\n` +
-                       `*Usage:* .card <type>\\n` +
-                       `*Examples:*\\n` +
-                       `.card visa\\n` +
-                       `.card mastercard\\n` +
-                       `.card american-express\\n` +
+        const message = `*💳 AVAILABLE CARD TYPES*\n\n` +
+                       `${validTypes.map(type => `• ${type}`).join('\n')}\n\n` +
+                       `*Usage:* .card <type>\n` +
+                       `*Examples:*\n` +
+                       `.card visa\n` +
+                       `.card mastercard\n` +
+                       `.card american-express\n` +
                        `.card jcb`;
         return reply(message);
     }
@@ -57,7 +56,7 @@ try{
     
     // Validate card type
     if (!validTypes.includes(cardType)) {
-        return reply(`❌ Invalid card type!\\n\\n*Available types:* ${validTypes.join(', ')}\\n\\n*Example:* .card visa`);
+        return reply(`❌ Invalid card type!\n\n*Available types:* ${validTypes.join(', ')}\n\n*Example:* .card visa`);
     }
 
     // Make API request
@@ -69,15 +68,15 @@ try{
 
     // Format the response
     const cards = response.data.result;
-    let message = `*💳 VIRTUAL CREDIT CARDS*\\n*Type:* ${cardType.toUpperCase()}\\n\\n`;
+    let message = `*💳 VIRTUAL CREDIT CARDS*\n*Type:* ${cardType.toUpperCase()}\n\n`;
     
     cards.forEach((card, index) => {
-        message += `*Card ${index + 1}:*\\n` +
-                  `📛 *Name:* ${card.name}\\n` +
-                  `🔢 *Number:* \`${card.number}\\`\\n` +
-                  `🔒 *CVV:* \`${card.cvv}\\`\\n` +
-                  `📅 *Expiry:* ${card.expiry}\\n` +
-                  `🏷️ *Type:* ${card.type}\\n\\n`;
+        message += `*Card ${index + 1}:*\n` +
+                  `📛 *Name:* ${card.name}\n` +
+                  `🔢 *Number:* \`${card.number}\`\n` +
+                  `🔒 *CVV:* \`${card.cvv}\`\n` +
+                  `📅 *Expiry:* ${card.expiry}\n` +
+                  `🏷️ *Type:* ${card.type}\n\n`;
     });
 
     message += "*⚠️ Disclaimer:* These are test cards for development purposes only. Do not use for real transactions.";
