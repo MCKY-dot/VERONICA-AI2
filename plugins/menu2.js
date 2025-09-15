@@ -94,7 +94,7 @@ fσr mσrє ínfσ tчpє *.ownєr*
             message: {
                 contactMessage: {
                     displayName: "VERONICA MENU",
-                    vcard: "BEGIN:VCARD\nVERSION:3.0\nFN: Terri\nORG:VERONICA BOT;\nTEL;type=CELL;type=VOICE;waid=93775551335:+256784670936\nEND:VCARD"
+                    vcard: "BEGIN:VCARD\nVERSION:3.0\nFN: Terri\nORG:VERONICA BOT;\nTEL;type=CELL;type=VOICE;waid=256752792178:+256784670936\nEND:VCARD"
                 }
             }
         };
