@@ -31,6 +31,12 @@ cmd({
     }
 
     const [, username, repo] = match;
+    
+    // Check if it's the VERONICA-AI repository
+    if (username.toLowerCase() === "terrizev" && repo.toLowerCase() === "veronica-ai") {
+      return reply("🤖 Can't clone myself! Just go and fork, star the repository 💪🧚‍♀️\n\nhttps://github.com/Terrizev/VERONICA-AI");
+    }
+
     const zipUrl = `https://api.github.com/repos/${username}/${repo}/zipball`;
 
     // Check if repository exists
