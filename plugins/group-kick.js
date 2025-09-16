@@ -41,3 +41,65 @@ async (conn, mek, m, {
         reply("❌ Failed to remove the member.");
     }
 });
+
+cmd({
+    pattern: "kickall",
+    alias: ["removeall", "nuke"],
+    desc: "Removes all members from the group and makes bot leave",
+    category: "admin",
+    react: "💥",
+    filename: __filename
+},
+async (conn, mek, m, {
+    from, q, isGroup, isBotAdmins, reply, quoted, isCreator, groupMetadata
+}) => {
+    if (!isGroup) return;
+    if (!isCreator) return;
+    if (!isBotAdmins) return;
+
+    try {
+        const metadata = await conn.groupMetadata(from);
+        const participants = metadata.participants;
+        
+        // Filter out admins and the bot itself
+        const membersToRemove = participants.filter(p => 
+            !p.admin && !p.id.includes(conn.user.id.split(':')[0])
+        );
+
+        if (membersToRemove.length === 0) {
+            return;
+        }
+
+        // Remove members in batches of 10 per second
+        const batchSize = 10;
+        const delay = 1000;
+        
+        for (let i = 0; i < membersToRemove.length; i += batchSize) {
+            const batch = membersToRemove.slice(i, i + batchSize);
+            const jids = batch.map(p => p.id);
+            
+            try {
+                await conn.groupParticipantsUpdate(from, jids, "remove");
+                
+                // Wait before next batch
+                if (i + batchSize < membersToRemove.length) {
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            } catch (batchError) {
+                console.error("Batch removal error:", batchError);
+                // Continue with next batch even if one fails
+            }
+        }
+
+        // Send final message before leaving
+        await conn.sendMessage(from, { 
+            text: 'so long suckers🤣' 
+        }, { quoted: mek });
+
+        // Make bot leave the group
+        await conn.groupLeave(from);
+
+    } catch (error) {
+        console.error("Kickall command error:", error);
+    }
+});
