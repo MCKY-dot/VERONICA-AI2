@@ -49,7 +49,7 @@ const fs = require('fs')
 const ff = require('fluent-ffmpeg')
 const P = require('pino')
 const GroupEvents = require('./lib/anonyt');
-const qrcode = require('qrcode-terminal')
+// qrcode not required for pairing-code flow
 const StickersTypes = require('wa-sticker-formatter')
 const util = require('util')
 const { sms, downloadMediaMessage, AntiDelete } = require('./lib')
@@ -63,6 +63,8 @@ const prefix = config.PREFIX
 const ownerNumber = ['256754550399']
 const { anony } = require('./lib/terri');
 let store;
+
+const readline = require('readline')
 
 //=============================================
 const tempDir = path.join(os.tmpdir(), 'cache-temp')
@@ -101,7 +103,7 @@ if (!fs.existsSync(sessionDir)) {
 async function loadSession() {
   try {
     if (!config.SESSION_ID) {
-      console.log('No SESSION_ID provided - QR login will be generated');
+      console.log('No SESSION_ID provided - will attempt pairing-code or QR login');
       return null;
     }
 
@@ -123,10 +125,25 @@ async function loadSession() {
     return JSON.parse(data.toString());
   } catch (error) {
     console.error('❌ Error loading session:', error.message);
-    console.log('Will generate QR code instead');
+    console.log('Will generate QR code or request pairing code instead');
     return null;
   }
 }
+
+// helper to ask question in terminal (used for pairing code flow)
+const question = (text) => {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+  return new Promise((resolve) => rl.question(text, (ans) => {
+    rl.close();
+    resolve(ans);
+  }));
+}
+
+// Whether to prefer pairing-code instead of QR when no session creds
+const usePairingCode = (typeof config.USE_PAIRING_CODE !== 'undefined') ? (config.USE_PAIRING_CODE === 'true' || config.USE_PAIRING_CODE === true) : true;
 
 //=======SESSION-AUTH==============
 
@@ -142,15 +159,46 @@ async function connectToWA() {
 
   const { version } = await fetchLatestBaileysVersion();
 
+  // Decide whether to show QR in terminal: only if there's no creds AND we're not using pairing-code
+  const showQR = !creds && !usePairingCode;
+
   const conn = makeWASocket({
     logger: P({ level: 'silent' }),
-    printQRInTerminal: !creds, // Only show QR if no session loaded
+    printQRInTerminal: showQR,
     browser: Browsers.macOS("Firefox"),
     syncFullHistory: true,
     auth: state,
     version,
     getMessage: async () => ({})
   });
+
+  // If we're using pairing code flow and we don't have existing creds, request pairing code
+  // Logic inspired by main.js example: ask operator for phone number and call requestPairingCode
+  if (usePairingCode && !creds) {
+    (async () => {
+      try {
+        // wait a bit to ensure socket ready
+        await new Promise(r => setTimeout(r, 800));
+        // if already registered (somehow) skip
+        if (state?.creds?.registered) return;
+        const phoneNumber = await question("\nEnter your number (country code + number, e.g. 2567XXXXXXX): ");
+        if (!phoneNumber) {
+          console.log("No phone number provided, skipping pairing-code request.");
+          return;
+        }
+        try {
+          const label = config.PAIRING_LABEL || 'VERONICA';
+          const code = await conn.requestPairingCode(phoneNumber, label);
+          console.log(`\nThis Your Pairing Code : ${code}\n`);
+          console.log("Use this code in your official WhatsApp client to pair the device.");
+        } catch (e) {
+          console.error("Failed to request pairing code:", e?.message || e);
+        }
+      } catch (err) {
+        console.error("Pairing-code flow error:", err);
+      }
+    })();
+  }
 
   store = makeInMemoryStore ? makeInMemoryStore({ socket: conn }) : { contacts: {} };
 
@@ -216,7 +264,12 @@ async function connectToWA() {
       }
 
       if (qr) {
-        console.log('[🔰] Scan the QR code to connect or use session ID');
+        if (showQR) {
+          console.log('[🔰] Scan the QR code to connect or use session ID');
+        } else {
+          // If QR is provided but we intentionally didn't show QR, log a short message
+          console.log('[🔰] QR code received but QR terminal output is disabled (pairing-code mode).');
+        }
       }
     }
   });
