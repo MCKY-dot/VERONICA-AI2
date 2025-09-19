@@ -14,7 +14,7 @@ ENJOY
 ┗━━━━━━━━━━━━━━━┛
 */
 
-const axios = require('axios')
+const axios = require('./lib/axios')
 const config = require('./config')
 const chalk = require('./lib/verocolor')
 const {
