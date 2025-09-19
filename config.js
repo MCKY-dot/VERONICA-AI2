@@ -1,3 +1,21 @@
+
+
+//hi🙃 RECODE  give credits naa🤭
+/*
+FOR SAME PARTS USES YOUR OWN CODES
+VERONICA IS 94% ZERO ENC
+ENJOY 
+┏━━━━━━━━━━━━━━━┓
+┃ VERONICA-AI INDEX🧚‍♀️🇺🇬
+┣━━━━━━━━━━━━━━━┛
+┃whatsapp : +256754550399
+┃owner : Terri
+┃base :  veronica ai
+┃maintainer : Terri
+┃pterodactyl hosting buy from Kevin tech dev
+        +256742932677
+┗━━━━━━━━━━━━━━━┛
+*/
 const fs = require('fs');
 const path = require('path');
 const { getConfig } = require("./lib/configdb");
@@ -26,6 +44,7 @@ BAILEYS: process.env.BAILEYS || "@whiskeysockets/baileys",
 
 
 OWNER_NUMBER: process.env.OWNER_NUMBER || "256754550399",
+//remove this and put yours
 
 OWNER_NAME: process.env.OWNER_NAME || getConfig("OWNER_NAME") || "ᴛᴇʀʀɪ",
          
@@ -38,7 +57,7 @@ DEVELOPER_NUMBER: '256754550399@s.whatsapp.net',
 
 AUTO_REPLY: process.env.AUTO_REPLY || "false",
 
-AUTO_STATUS_REPLY: process.env.AUTO_STATUS_REPLY || "true",
+AUTO_STATUS_REPLY: process.env.AUTO_STATUS_REPLY || "false",
 
 AUTO_STATUS_MSG: process.env.AUTO_STATUS_MSG || "*VERONICA AI VIEWED YOUR STATUS 🧚‍♀️*",
 
@@ -80,7 +99,7 @@ MENU_IMAGE_URL: getConfig("MENU_IMAGE_URL") || "https://files.catbox.moe/mn9fgn.
 
 ANTI_DELETE: process.env.ANTI_DELETE || "true",
 
-ANTI_CALL: process.env.ANTI_CALL || "true",
+ANTI_CALL: process.env.ANTI_CALL || "false",
 
 ANTI_BAD_WORD: process.env.ANTI_BAD_WORD || "false",
 
@@ -114,8 +133,7 @@ AUTO_BIO: process.env.AUTO_BIO || "true",
 
 WELCOME: process.env.WELCOME || "true",
 
-GOODBYE: process.env.GOODBYE || "true",
+GOODBYE: process.env.GOODBYE || "false",
 
 ADMIN_ACTION: process.env.ADMIN_ACTION || "false",
 };
-        
