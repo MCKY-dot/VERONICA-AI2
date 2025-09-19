@@ -16,7 +16,7 @@ ENJOY
 
 const axios = require('axios')
 const config = require('./config')
-const chalk = require('verocolor')
+const chalk = require('./lib/verocolor')
 const {
   default: makeWASocket,
   useMultiFileAuthState,
