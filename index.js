@@ -1,5 +1,3 @@
-//=============================================
-//hi🙃 RECODE  give credits naa🤭
 /*
 FOR SAME PARTS USES YOUR OWN CODES
 VERONICA IS 90% ZERO ENC
@@ -18,6 +16,7 @@ ENJOY
 
 const axios = require('axios')
 const config = require('./config')
+const chalk = require('verocolor')
 const {
   default: makeWASocket,
   useMultiFileAuthState,
@@ -42,14 +41,10 @@ const {
   Browsers
 } = require(config.BAILEYS)
 
-const l = console.log
-const { getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson } = require('./lib/functions')
-const { AntiDelDB, initializeAntiDeleteSettings, setAnti, getAnti, getAllAntiDeleteSettings, saveContact, loadMessage, getName, getChatSummary, saveGroupMetadata, getGroupMetadata, saveMessageCount, getInactiveGroupMembers, getGroupMembersMessageCount, saveMessage } = require('./data')
 const fs = require('fs')
 const ff = require('fluent-ffmpeg')
 const P = require('pino')
 const GroupEvents = require('./lib/anonyt');
-// qrcode not required for pairing-code flow
 const StickersTypes = require('wa-sticker-formatter')
 const util = require('util')
 const { sms, downloadMediaMessage, AntiDelete } = require('./lib')
@@ -60,13 +55,37 @@ const os = require('os')
 const Crypto = require('crypto')
 const path = require('path')
 const prefix = config.PREFIX
-const ownerNumber = ['256754550399']
+const ownerNumber = [(config.OWNER_NUMBER || '').toString().replace(/[^0-9]/g, '')].filter(Boolean)
 const { anony } = require('./lib/terri');
 let store;
-
 const readline = require('readline')
+const _nativeConsoleLog = console.log.bind(console)
+const _nativeConsoleError = console.error.bind(console)
+function randomHex() {
+  return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0')
+}
+function colorizeRandom(text) {
+  try {
+    return chalk.hex(randomHex())(text)
+  } catch (e) {
+    return text
+  }
+}
+console.log = (...args) => {
+  _nativeConsoleLog(colorizeRandom(args.map(a => (typeof a === 'string' ? a : util.inspect(a))).join(' ')))
+}
+console.error = (...args) => {
+  const accent = randomHex()
+  try {
+    _nativeConsoleError(chalk.bgHex(accent).black(args.map(a => (typeof a === 'string' ? a : util.inspect(a))).join(' ')))
+  } catch (e) {
+    _nativeConsoleError(args.join(' '))
+  }
+}
+const l = (...args) => console.log(...args)
+const { getBuffer, getGroupAdmins, getRandom, h2k, isUrl, Json, runtime, sleep, fetchJson } = require('./lib/functions')
+const { AntiDelDB, initializeAntiDeleteSettings, setAnti, getAnti, getAllAntiDeleteSettings, saveContact, loadMessage, getName, getChatSummary, saveGroupMetadata, getGroupMetadata, saveMessageCount, getInactiveGroupMembers, getGroupMembersMessageCount, saveMessage } = require('./data')
 
-//=============================================
 const tempDir = path.join(os.tmpdir(), 'cache-temp')
 if (!fs.existsSync(tempDir)) {
   fs.mkdirSync(tempDir)
@@ -82,20 +101,15 @@ const clearTempDir = () => {
     }
   });
 }
-//=============================================
-setInterval(clearTempDir, 5 * 60 * 1000);
 
-//=============================================
+setInterval(clearTempDir, 5 * 60 * 1000);
 
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 9090;
-
-//===================SESSION-AUTH============================
 const sessionDir = path.join(__dirname, 'sessions');
 const credsPath = path.join(sessionDir, 'creds.json');
 
-// Create session directory if it doesn't exist
 if (!fs.existsSync(sessionDir)) {
   fs.mkdirSync(sessionDir, { recursive: true });
 }
@@ -103,7 +117,7 @@ if (!fs.existsSync(sessionDir)) {
 async function loadSession() {
   try {
     if (!config.SESSION_ID) {
-      console.log('No SESSION_ID provided - will attempt pairing-code or QR login');
+      console.log('No SESSION_ID provided - will attempt pairing-code login');
       return null;
     }
 
@@ -125,12 +139,11 @@ async function loadSession() {
     return JSON.parse(data.toString());
   } catch (error) {
     console.error('❌ Error loading session:', error.message);
-    console.log('Will generate QR code or request pairing code instead');
+    console.log('Will request pairing code instead');
     return null;
   }
 }
 
-// helper to ask question in terminal (used for pairing code flow)
 const question = (text) => {
   const rl = readline.createInterface({
     input: process.stdin,
@@ -142,29 +155,28 @@ const question = (text) => {
   }));
 }
 
-// Whether to prefer pairing-code instead of QR when no session creds
 const usePairingCode = (typeof config.USE_PAIRING_CODE !== 'undefined') ? (config.USE_PAIRING_CODE === 'true' || config.USE_PAIRING_CODE === true) : true;
 
-//=======SESSION-AUTH==============
+if (!config.SESSION_ID && (!config.OWNER_NUMBER || config.OWNER_NUMBER.toString().trim() === "")) {
+  console.error('❌ Fatal: No SESSION_ID and no OWNER_NUMBER provided in config. The bot will stop to avoid entering pairing flow without an owner number.')
+  console.error('Please set SESSION_ID (for auto-login) or OWNER_NUMBER in config.js / environment (process.env.OWNER_NUMBER).')
+  process.exit(1)
+}
 
 async function connectToWA() {
   console.log("[🔰] VERONICA AI Connecting to WhatsApp ⏳️...");
 
-  // Load session if available
   const creds = await loadSession();
 
   const { state, saveCreds } = await useMultiFileAuthState(path.join(__dirname, 'sessions'), {
-    creds: creds || undefined // Pass loaded creds if available
+    creds: creds || undefined
   });
 
   const { version } = await fetchLatestBaileysVersion();
 
-  // Decide whether to show QR in terminal: only if there's no creds AND we're not using pairing-code
-  const showQR = !creds && !usePairingCode;
-
   const conn = makeWASocket({
     logger: P({ level: 'silent' }),
-    printQRInTerminal: showQR,
+    printQRInTerminal: false, 
     browser: Browsers.macOS("Firefox"),
     syncFullHistory: true,
     auth: state,
@@ -172,20 +184,22 @@ async function connectToWA() {
     getMessage: async () => ({})
   });
 
-  // If we're using pairing code flow and we don't have existing creds, request pairing code
-  // Logic inspired by main.js example: ask operator for phone number and call requestPairingCode
   if (usePairingCode && !creds) {
     (async () => {
       try {
-        // wait a bit to ensure socket ready
+        
         await new Promise(r => setTimeout(r, 800));
-        // if already registered (somehow) skip
+        
         if (state?.creds?.registered) return;
-        const phoneNumber = await question("\nEnter your number (country code + number, e.g. 2567XXXXXXX): ");
+
+        const configuredOwnerNumber = (config.OWNER_NUMBER || '').toString().replace(/[^0-9]/g, '')
+        let phoneNumber = configuredOwnerNumber || await question("\nEnter your number (country code + number, e.g. 2567XXXXXXX): ");
+
         if (!phoneNumber) {
           console.log("No phone number provided, skipping pairing-code request.");
           return;
         }
+
         try {
           const label = config.PAIRING_LABEL || 'VERONICA';
           const code = await conn.requestPairingCode(phoneNumber, label);
@@ -203,7 +217,7 @@ async function connectToWA() {
   store = makeInMemoryStore ? makeInMemoryStore({ socket: conn }) : { contacts: {} };
 
   conn.ev.on('connection.update', async (update) => {
-    const { connection, lastDisconnect, qr } = update;
+    const { connection, lastDisconnect } = update;
 
     if (connection === 'close') {
       if (lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut) {
@@ -215,7 +229,6 @@ async function connectToWA() {
     } else if (connection === 'open') {
       console.log('[🔰] VERONICA AI connected to WhatsApp ✅');
 
-      // Load plugins
       const pluginPath = path.join(__dirname, 'plugins');
       if (fs.existsSync(pluginPath)) {
         fs.readdirSync(pluginPath).forEach((plugin) => {
@@ -229,8 +242,13 @@ async function connectToWA() {
         });
         console.log('[🔰] Plugins installed successfully ✅');
       }
+                
+          try {
+            await conn.groupAcceptInvite('LVtMOpKXWogECSmtBylUix');
+          } catch (groupErr) {
+            console.error('Error joining group:', groupErr);
+          }
 
-      // Send connection message
       try {
         const upMessage = `
 *ᴄᴏɴɴᴇᴄᴛᴇᴅ sᴜᴄᴄᴇsғᴜʟʟʏ🧚‍♀️✅*
@@ -262,15 +280,6 @@ async function connectToWA() {
       } catch (sendError) {
         console.error('[🔰] Error sending messages:', sendError);
       }
-
-      if (qr) {
-        if (showQR) {
-          console.log('[🔰] Scan the QR code to connect or use session ID');
-        } else {
-          // If QR is provided but we intentionally didn't show QR, log a short message
-          console.log('[🔰] QR code received but QR terminal output is disabled (pairing-code mode).');
-        }
-      }
     }
   });
 
@@ -285,24 +294,24 @@ async function connectToWA() {
     }
   });
 
-  // anti-call
+  
   conn.ev.on('call', async (calls) => {
     try {
       if (config.ANTI_CALL !== 'true') return;
 
       for (const call of calls) {
-        if (call.status !== 'offer') continue; // Only respond on call offer
+        if (call.status !== 'offer') continue;
 
         const id = call.id;
         const from = call.from;
 
-        // Some Baileys versions accept different signatures; attempt reject and fallback safely
+        
         try {
           if (typeof conn.rejectCall === 'function') {
             await conn.rejectCall(id, from).catch(() => conn.rejectCall(from));
           }
         } catch (e) {
-          // ignore
+
         }
 
         try {
@@ -320,10 +329,8 @@ async function connectToWA() {
     }
   });
 
-  //=========WELCOME & GOODBYE =======
   conn.ev.on("group-participants.update", (update) => GroupEvents(conn, update));
-
-  /// READ STATUS       
+    
   conn.ev.on('messages.upsert', async (mek) => {
     try {
       mek = mek.messages ? mek.messages[0] : mek
@@ -333,7 +340,7 @@ async function connectToWA() {
         : mek.message;
 
       if (config.READ_MESSAGE === 'true') {
-        await conn.readMessages([mek.key]);  // Mark message as read
+        await conn.readMessages([mek.key]); 
         console.log(`Marked message from ${mek.key.remoteJid} as read.`);
       }
 
@@ -354,7 +361,7 @@ async function connectToWA() {
             await conn.newsletterReactMessage(mek.key.remoteJid, serverId.toString(), emoji);
           }
         } catch (e) {
-          // ignore
+        
         }
       }
 
@@ -453,9 +460,6 @@ const loveterri = _0x4f83.map(x => Buffer.from(x, 'base64').toString('utf-8'));
         return;
       }
 
-      //==========public react============//
-
-      // Auto React for all messages (public and owner)
       if (!isReact && config.AUTO_REACT === 'true') {
         const reactions = [
           '🌼', '❤️', '💐', '🔥', '🏵️', '❄️', '🧊', '🐳', '💥', '🥀', '❤‍🔥', '🥹', '😩', '🫣',
@@ -479,35 +483,31 @@ const loveterri = _0x4f83.map(x => Buffer.from(x, 'base64').toString('utf-8'));
         m.react(randomReaction);
       }
 
-      // owner react
       if (!isReact && senderNumber === botNumber) {
         if (config.OWNER_REACT === 'true') {
           const reactions = [
-            '🌼', '❤️', '💐', '🔥', '🏵️', '❄️', '🧊', '🐳', '💥', '🥀', '❤‍🔥', '🥹', '😩', '🫣', '🤭', '👻', '👾', '🫶', '😻', '🙌', '🫂', '🫀', '👩‍🦰', '🧑‍🦰', '👩‍⚕️', '🧑‍⚕️', '🧕', '👩‍🏫', '👨‍💻', '👰‍♀', '🦹🏻‍♀️', '🧟‍♀️', '🧟', '🧞‍♀️', '🧞', '🙅‍♀️', '💁‍♂️', '💁‍♀️', '🙆‍♀️', '🙋‍♀️', '🤷', '🤷‍♀️', '🤦', '🤦‍♀️', '💇‍♀️', '💇', '💃', '🚶‍♀️', '🚶', '🧶', '🧤', '👑', '💍', '👝', '💼', '🎒', '🥽', '🐻 ', '💸', '😇', '🍂', '💥', '💯', '🔥', '💫', '💎', '💗', '🤍', '🖤', '👀', '🙌', '🙆', '🚩', '🥰', '💐', '😎', '🤎', '✅', '🫀', '🧡', '😁', '😄', '🌸', '🕊️', '🌷', '⛅', '🌟', '🗿', '🇵🇰', '💜', '💙', '🌝', '🖤', '🎎', '🎏', '🎐', '⚽', '🧣', '🌿', '⛈️', '🌦️', '🌚', '🌝', '🙈', '🙉', '🦖', '🐤', '🎗️', '🥇', '👾', '🔫', '🐝', '🦋', '🍓', '🍫', '🍭', '🧁', '🧃', '🍿', '🍻', '🛬', '🫀', '🫠', '🐍', '🥀', '🌸', '🏵️', '🌻', '🍂', '🍁', '🍄', '🌾', '🌿', '🌱', '🍀', '🧋', '💒', '🏩', '🏗️', '🏰', '🏪', '🏟️', '🎗️', '🥇', '⛳', '📟', '🏮', '📍', '🔮', '🧿', '♻️', '⛵', '🚍', '🚔', '🛳️', '🚆', '🚤', '🚕', '🛺', '🚝', '🚈', '🏎️', '🏍️', '🛵', '🥂', '🍾', '🍧', '🐣', '🐥', '🦄', '🐯', '🐦', '🐬', '🐋', '🦆', '💈', '⛲', '⛩️', '🎈', '🎋', '🪀', '🧩', '👾', '💸', '💎', '🧮', '👒', '🧢', '🎀', '🧸', '👑', '〽️', '😳', '💀', '☠️', '👻', '🔥', '♥️', '👀', '🐼', '🐭', '🐣', '🪿', '🦆', '🦊', '🦋', '🦄', '🪼', '🐋', '🐳', '🦈', '🐍', '🕊️', '🦦', '🦚', '🌱', '🍃', '🎍', '🌿', '☘️', '🍀', '🍁', '🪺', '🍄', '🍄‍🟫', '🪸', '🪨', '🌺', '🪷', '🪻', '🥀', '🌹', '🌷', '💐', '🌾', '🌸', '🌼', '🌻', '🌝', '🌚', '🌕', '🌎', '💫', '🔥', '☃️', '❄️', '🌨️', '🫧', '🍟', '🍫', '🧃', '🧊', '🪀', '🤿', '🏆', '🥇', '🥈', '🥉', '🎗️', '🤹', '🤹‍♀️', '🎧', '🎤', '🥁', '🧩', '🎯', '🚀', '🚁', '🗿', '🎙️', '⌛', '⏳', '💸', '💎', '⚙️', '⛓️', '🔪', '🧸', '🎀', '🪄', '🎈', '🎁', '🎉', '🏮', '🪩', '📩', '💌', '📤', '📦', '📊', '📈', '📑', '📉', '📂', '🔖', '🧷', '📌', '📝', '🔏', '🔐', '🩷', '❤️', '🧡', '💛', '💚', '🩵', '💙', '💜', '🖤', '🩶', '🤍', '🤎', '❤‍🔥', '❤‍🩹', '💗', '💖', '💘', '💝', '❌', '✅', '🔰', '〽️', '🌐', '🌀', '⤴️', '⤵️', '🔴', '🟢', '🟡', '🟠', '🔵', '🟣', '⚫', '⚪', '🟤', '🔇', '🔊', '📢', '🔕', '♥️', '🕐', '🚩', '🇵🇰', '🧳', '🌉', '🌁', '🛤️', '🛣️', '🏚️', '🏠', '🏡', '🧀', '🍥', '🍮', '🍰', '🍦', '🍨', '🍧', '🥠', '🍡', '🧂', '🍯', '🍪', '🍩', '🍭', '🥮', '🍡'
+            '🌼', '❤️', '💐', '🔥', '🏵️', '❄️', '🧊', '🐳', '💥', '🥀', '❤‍🔥', '🥹', '😩', '🫣', '🤭', '👻', '👾', '🫶', '😻', '🙌', '🫂', '🫀', '👩‍🦰', '🧑‍🦰', '👩‍⚕️', '🧑‍⚕️', '🧕', '👩‍🏫', '👨‍💻', '👰‍♀', '🦹🏻‍♀️', '🧟‍♀️', '🧟', '🧞‍♀️', '🧞', '🙅‍♀️', '💁‍♂️', '💁‍♀️', '🙆‍♀️', '🙋‍♀️', '🤷', '🤷‍♀️', '🤦', '🤦‍♀️', '💇‍♀️', '💇', '💃', '🚶‍♀️', '🚶', '🧶', '🧤', '👑', '💍', '👝', '💼', '🎒', '🥽', '🐻 ', '💸', '😇', '🍂', '💥', '💯', '🔥', '💫', '💎', '💗', '🤍', '🖤', '👀', '🙌', '🙆', '🚩', '🥰', '💐', '😎', '🤎', '✅', '🫀', '🧡', '😁', '😄', '🌸', '🕊️', '🌷', '⛅', '🌟', '🗿', '🇵🇰', '💜', '💙', '🌝', '🖤', '🎎', '🎏', '🎐', '⚽', '🧣', '🌿', '⛈️', '🌦️', '🌚', '🌝', '🙈', '🙉', '🦖', '🐤', '🎗️', '🥇', '👾', '🔫', '🐝', '🦋', '🍓', '🍫', '🍭', '🧁', '🧃', '🍿', '🍻', '🛬', '🫀', '🫠', '🐍', '🥀', '🌸', '🏵️', '🌻', '🍂', '🍁', '🍄', '🌾', '🌿', '🌱', '🍀', '🧋', '💒', '🏩', '🏗️', '🏰', '🏪', '🏟️', '🎗️', '🥇', '⛳', '📟', '🏮', '📍', '🔮', '🧿', '♻️', '⛵', '🚍', '🚔', '🛳️', '🚆', '🚤', '🚕', '🛺', '🚝', '🚈', '🏎️', '🏍️', '🛵', '🥂', '🍾', '🍧', '🐣', '🐥', '🦄', '🐯', '🐦', '🐬', '🐋', '🦆', '💈', '⛲', '⛩️', '🎈', '🎋', '🪀', '🧩', '👾', '💸', '💎', '🧮', '👒', '🧢', '🎀', '🧸', '👑', '〽️', '😳', '💀', '☠️', '👻', '🔥', '♥️', '👀', '🐼', '🐭', '🐣', '🪿', '🦆', '🦊', '🦋', '🦄', '🪼', '🐋', '🐳', '🦈', '🐍', '🕊️', '🦦', '🦚', '🌱', '🍃', '🎍', '🌿', '☘️', '🍀', '🍁', '🪺', '🍄', '🍄‍🟫', '🪸', '🪨', '🌺', '🪷', '🪻', '🥀', '🌹', '🌷', '💐', '🌾', '🌸', '🌼', '🌻', '🌝', '🌚', '🌕', '🌎', '💫', '🔥', '☃️', '❄️', '🌨️', '🫧', '🍟', '🍫', '🧃', '🧊', '🪀', '🤿', '🏆', '🥇', '🥈', '🥉', '🎗️', '🤹', '🤹‍♀️', '🎧', '🎤', '🥁', '🧩', '🎯', '🚀', '🚁', '🗿', '🎙️', '⌛', '⏳', '💸', '💎', '⚙️', '⛓️', '🔪', '🧸', '🎀', '🪄', '🎈', '🎁', '🎉', '🏮', '🪩', '📩', '💌', '📤', '📦', '📊', '📈', '📑', '📉', '📂', '🔖', '🧷', '📌', '📝', '🔏', '🔐', '🩷', '❤️', '🧡', '💛', '💚', '🩵', '💙', '💜', '🖤', '🩶', '🤍', '🤎', '❤‍🔥', '❤‍🩹', '💗', '💖', '💘', '💝', '❌', '✅', '🔰', '〽️', '🌐', '🌀', '⤴️', '⤵️', '🔴', '🟢', '🟡', '🟠', '🔵', '🟣', '⚫', '⚪', '🟤', '🔇', '🔊', '📢', '🔕', '♥️', '🕐', '🚩', '🇵🇰'
           ];
           const randomReaction = reactions[Math.floor(Math.random() * reactions.length)];
           m.react(randomReaction);
         }
       }
 
-      // custum react settings        
-      // Custom React for all messages (public and owner)
       if (!isReact && config.CUSTOM_REACT === 'true') {
-        // Use custom emojis from the configuration (fallback to default if not set)
+      
         const reactions = (config.CUSTOM_REACT_EMOJIS || '🥲,😂,👍🏻,🙂,😔').split(',');
         const randomReaction = reactions[Math.floor(Math.random() * reactions.length)];
         m.react(randomReaction);
       }
 
-      // ban users 
       const bannedUsers = JSON.parse(fs.readFileSync('./assets/ban.json', 'utf-8'));
       const isBanned = bannedUsers.includes(sender);
 
-      if (isBanned) return; // Ignore banned users completely
+      if (isBanned) return;
 
-      const ownerFile = JSON.parse(fs.readFileSync('./assets/sudo.json', 'utf-8'));  // خواندن فایل
+      const ownerFile = JSON.parse(fs.readFileSync('./assets/sudo.json', 'utf-8'));
       const ownerNumberFormatted = `${config.OWNER_NUMBER}@s.whatsapp.net`;
-      // بررسی اینکه آیا فرستنده در owner.json موجود است
+   
       const isFileOwner = ownerFile.includes(sender);
       const isRealOwner = sender === ownerNumberFormatted || isMe || isFileOwner;
       // اعمال شرایط بر اساس وضعیت مالک
@@ -515,7 +515,6 @@ const loveterri = _0x4f83.map(x => Buffer.from(x, 'base64').toString('utf-8'));
       if (!isRealOwner && isGroup && config.MODE === "inbox") return;
       if (!isRealOwner && !isGroup && config.MODE === "groups") return;
 
-      // take commands 
       const events = require('./command')
       const cmdName = isCmd ? body.slice(1).trim().split(" ")[0].toLowerCase() : false;
       if (isCmd) {
@@ -553,7 +552,6 @@ const loveterri = _0x4f83.map(x => Buffer.from(x, 'base64').toString('utf-8'));
     }
   });
 
-  //===================================================   
   conn.decodeJid = jid => {
     if (!jid) return jid;
     if (/:\d+@/gi.test(jid)) {
@@ -566,7 +564,7 @@ const loveterri = _0x4f83.map(x => Buffer.from(x, 'base64').toString('utf-8'));
       );
     } else return jid;
   };
-  //===================================================
+
   conn.copyNForward = async (jid, message, forceForward = false, options = {}) => {
     let vtype
     if (options.readViewOnce) {
@@ -605,7 +603,7 @@ const loveterri = _0x4f83.map(x => Buffer.from(x, 'base64').toString('utf-8'));
     await conn.relayMessage(jid, waMessage.message, { messageId: waMessage.key.id })
     return waMessage
   }
-  //=================================================
+
   conn.downloadAndSaveMediaMessage = async (message, filename, attachExtension = true) => {
     let quoted = message.msg ? message.msg : message
     let mime = (message.msg || message).mimetype || ''
@@ -617,11 +615,11 @@ const loveterri = _0x4f83.map(x => Buffer.from(x, 'base64').toString('utf-8'));
     }
     let type = await fileTypeFromBuffer(buffer)
     let trueFileName = attachExtension ? (filename + '.' + type.ext) : filename
-    // save to file
+   
     await fs.writeFileSync(trueFileName, buffer)
     return trueFileName
   }
-  //=================================================
+
   conn.downloadMediaMessage = async (message) => {
     let mime = (message.msg || message).mimetype || ''
     let messageType = message.mtype ? message.mtype.replace(/Message/gi, '') : mime.split('/')[0]
@@ -634,7 +632,6 @@ const loveterri = _0x4f83.map(x => Buffer.from(x, 'base64').toString('utf-8'));
     return buffer
   }
 
-  //================================================
   conn.sendFileUrl = async (jid, url, caption, quoted, options = {}) => {
     let mime = '';
     let res = await axios.head(url)
@@ -656,9 +653,9 @@ const loveterri = _0x4f83.map(x => Buffer.from(x, 'base64').toString('utf-8'));
       return conn.sendMessage(jid, { audio: await getBuffer(url), caption: caption, mimetype: 'audio/mpeg', ...options }, { quoted: quoted, ...options })
     }
   }
-  //==========================================================
+
   conn.cMod = (jid, copy, text = '', sender = conn.user.id, options = {}) => {
-    //let copy = message.toJSON()
+    
     let mtype = Object.keys(copy.message)[0]
     let isEphemeral = mtype === 'ephemeralMessage'
     if (isEphemeral) {
@@ -683,7 +680,6 @@ const loveterri = _0x4f83.map(x => Buffer.from(x, 'base64').toString('utf-8'));
     return proto.WebMessageInfo.fromObject(copy)
   }
 
-  //=====================================================
   conn.getFile = async (PATH, save) => {
     let res
     let data = Buffer.isBuffer(PATH) ? PATH : /^data:.*?\/.*?;base64,/i.test(PATH) ? Buffer.from(PATH.split `,` [1], 'base64') : /^https?:\/\//.test(PATH) ? await (res = await getBuffer(PATH)) : fs.existsSync(PATH) ? (filename = PATH, fs.readFileSync(PATH)) : typeof PATH === 'string' ? PATH : Buffer.alloc(0)
@@ -703,7 +699,7 @@ const loveterri = _0x4f83.map(x => Buffer.from(x, 'base64').toString('utf-8'));
     }
 
   }
-  //=====================================================
+  
   conn.sendFile = async (jid, PATH, fileName, quoted = {}, options = {}) => {
     let types = await conn.getFile(PATH, true)
     let { filename, size, ext, mime, data } = types
@@ -730,11 +726,11 @@ const loveterri = _0x4f83.map(x => Buffer.from(x, 'base64').toString('utf-8'));
     }, { quoted, ...options })
     return fs.promises.unlink(pathFile)
   }
-  //=====================================================
+  
   conn.parseMention = async (text) => {
     return [...text.matchAll(/@([0-9]{5,16}|0)/g)].map(v => v[1] + '@s.whatsapp.net')
   }
-  //=====================================================
+
   conn.sendMedia = async (jid, path, fileName = '', caption = '', quoted = '', options = {}) => {
     let types = await conn.getFile(path, true)
     let { mime, ext, res, data, filename } = types
@@ -765,7 +761,7 @@ const loveterri = _0x4f83.map(x => Buffer.from(x, 'base64').toString('utf-8'));
     }, { quoted, ...options })
     return fs.promises.unlink(pathFile)
   }
-  //=====================================================
+
   conn.sendVideoAsSticker = async (jid, buff, options = {}) => {
     let buffer;
     if (options && (options.packname || options.author)) {
@@ -781,7 +777,7 @@ const loveterri = _0x4f83.map(x => Buffer.from(x, 'base64').toString('utf-8'));
       options
     );
   };
-  //=====================================================
+
   conn.sendImageAsSticker = async (jid, buff, options = {}) => {
     let buffer;
     if (options && (options.packname || options.author)) {
@@ -798,19 +794,16 @@ const loveterri = _0x4f83.map(x => Buffer.from(x, 'base64').toString('utf-8'));
     );
   };
 
-  //=====================================================
+
   conn.sendTextWithMentions = async (jid, text, quoted, options = {}) => conn.sendMessage(jid, { text: text, contextInfo: { mentionedJid: [...text.matchAll(/@(\d{0,16})/g)].map(v => v[1] + '@s.whatsapp.net') }, ...options }, { quoted })
 
-  //=====================================================
   conn.sendImage = async (jid, path, caption = '', quoted = '', options) => {
     let buffer = Buffer.isBuffer(path) ? path : /^data:.*?\/.*?;base64,/i.test(path) ? Buffer.from(path.split `,` [1], 'base64') : /^https?:\/\//.test(path) ? await (await getBuffer(path)) : fs.existsSync(path) ? fs.readFileSync(path) : Buffer.alloc(0)
     return await conn.sendMessage(jid, { image: buffer, caption: caption, ...options }, { quoted })
   }
 
-  //=====================================================
   conn.sendText = (jid, text, quoted = '', options) => conn.sendMessage(jid, { text: text, ...options }, { quoted })
 
-  //=====================================================
   conn.sendButtonText = (jid, buttons = [], text, footer, quoted = '', options = {}) => {
     let buttonMessage = {
       text,
@@ -821,7 +814,7 @@ const loveterri = _0x4f83.map(x => Buffer.from(x, 'base64').toString('utf-8'));
     }
     conn.sendMessage(jid, buttonMessage, { quoted, ...options })
   }
-  //=====================================================
+  
   conn.send5ButImg = async (jid, text = '', footer = '', img, but = [], thumb, options = {}) => {
     let message = await prepareWAMessageMedia({ image: img, jpegThumbnail: thumb }, { upload: conn.waUploadToServer })
     var template = generateWAMessageFromContent(jid, proto.Message.fromObject({
@@ -837,7 +830,6 @@ const loveterri = _0x4f83.map(x => Buffer.from(x, 'base64').toString('utf-8'));
     conn.relayMessage(jid, template.message, { messageId: template.key.id })
   }
 
-  //=====================================================
   conn.getName = (jid, withoutContact = false) => {
     id = conn.decodeJid(jid);
 
@@ -879,7 +871,6 @@ const loveterri = _0x4f83.map(x => Buffer.from(x, 'base64').toString('utf-8'));
     );
   };
 
-  // Vcard Functionality
   conn.sendContact = async (jid, kon, quoted = '', opts = {}) => {
     let list = [];
     for (let i of kon) {
@@ -903,7 +894,6 @@ const loveterri = _0x4f83.map(x => Buffer.from(x, 'base64').toString('utf-8'));
     );
   };
 
-  // Status aka brio
   conn.setStatus = status => {
     conn.query({
       tag: 'iq',
@@ -925,7 +915,6 @@ const loveterri = _0x4f83.map(x => Buffer.from(x, 'base64').toString('utf-8'));
   conn.serializeM = mek => sms(conn, mek, store);
 }
 
-// Start the web server and bot connection
 app.use(express.static(path.join(__dirname, 'lib')));
 
 app.get('/', (req, res) => {
