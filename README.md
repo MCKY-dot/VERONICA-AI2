@@ -30,7 +30,7 @@ VERO AI is an intelligent conversational assistant designed to provide meaningfu
 
 ## 🎯 Quick Access
 
-### 🆔 Get Session ID
+### 🆔 Get Session ID. NOT WORKING BUT JUST DELOY ON PANEL BOT IS USEING PAIR CODE
 
 To start chatting with VERO AI, you need a session ID. Click the button below to get your session ID:
 
